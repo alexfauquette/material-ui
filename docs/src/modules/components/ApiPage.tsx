@@ -77,7 +77,7 @@ export interface LayoutStorageKeys {
   classes: string;
 }
 
-interface ApiPageProps {
+export interface ApiPageProps {
   descriptions: {
     [lang: string]: PropsTranslations & {
       // Table of Content added by the mapApiPageTranslations function

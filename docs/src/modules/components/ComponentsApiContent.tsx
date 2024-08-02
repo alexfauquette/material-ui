@@ -3,18 +3,18 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import kebabCase from 'lodash/kebabCase';
 import { useRouter } from 'next/router';
-import { exactProp } from '@mui/utils';
-import { useTranslate, useUserLanguage } from '@mui/docs/i18n';
-import { SectionTitle } from '@mui/docs/SectionTitle';
+import { Translate, useTranslate, useUserLanguage } from '@mui/docs/i18n';
+import { SectionTitle, SectionTitleProps } from '@mui/docs/SectionTitle';
 import { HighlightedCode } from '@mui/docs/HighlightedCode';
 import { MarkdownElement } from '@mui/docs/MarkdownElement';
 import PropertiesSection from 'docs/src/modules/components/ApiPage/sections/PropertiesSection';
 import ClassesSection from 'docs/src/modules/components/ApiPage/sections/ClassesSection';
 import SlotsSection from 'docs/src/modules/components/ApiPage/sections/SlotsSection';
 import { DEFAULT_API_LAYOUT_STORAGE_KEYS } from 'docs/src/modules/components/ApiPage/sections/ToggleDisplayOption';
+import { ApiPageProps } from 'docs/src/modules/components/ApiPage';
 
-function getTranslatedHeader(t, header, text) {
-  const translations = {
+function getTranslatedHeader(t: Translate, header: string, text?: string) {
+  const translations: Record<string, string> = {
     demos: t('api-docs.demos'),
     import: t('api-docs.import'),
     props: t('api-docs.props'),
@@ -25,10 +25,16 @@ function getTranslatedHeader(t, header, text) {
     css: t('api-docs.css'),
   };
 
-  return translations[header] || translations[text] || text || header;
+  return translations[header] || (text && translations[text]) || text || header;
 }
 
-function Heading(props) {
+interface HeadingProps {
+  hash: string;
+  level?: SectionTitleProps['level'];
+  text?: string;
+}
+
+function Heading(props: HeadingProps) {
   const { hash, text, level = 'h2' } = props;
   const t = useTranslate();
 
@@ -41,7 +47,12 @@ Heading.propTypes = {
   text: PropTypes.string,
 };
 
-export default function ComponentsApiContent(props) {
+export default function ComponentsApiContent(
+  props: Pick<ApiPageProps, 'defaultLayout' | 'layoutStorageKey'> & {
+    pageContents: Record<string, ApiPageProps['pageContent']>;
+    descriptions: Record<string, ApiPageProps['descriptions']>;
+  },
+) {
   const {
     descriptions,
     pageContents,
@@ -53,7 +64,7 @@ export default function ComponentsApiContent(props) {
   const router = useRouter();
 
   // There are legacy links where the the components had the Unstyled suffix
-  // This effects makes sure that the anchors will be correct wtih the renames
+  // This effects makes sure that the anchors will be correct with the renames
   React.useEffect(() => {
     const anchor = router.asPath.indexOf('#') >= 0 ? router.asPath.split('#')[1] : null;
     if (router.isReady && anchor && anchor.indexOf('-unstyled') >= 0) {
@@ -61,7 +72,7 @@ export default function ComponentsApiContent(props) {
         {
           hash: `${anchor.replace('-unstyled', '')}`,
         },
-        null,
+        undefined,
         {
           shallow: true,
         },
@@ -71,8 +82,8 @@ export default function ComponentsApiContent(props) {
 
   const components = Object.keys(pageContents);
 
-  return components.map((key) => {
-    const pageContent = pageContents[key];
+  return components.map((componentKey) => {
+    const pageContent = pageContents[componentKey];
     const {
       cssComponent,
       filename,
@@ -91,7 +102,7 @@ export default function ComponentsApiContent(props) {
     );
 
     const { classDescriptions, propDescriptions, slotDescriptions } =
-      descriptions[key][userLanguage];
+      descriptions[componentKey][userLanguage];
 
     const isJoyComponent = filename.includes('mui-joy');
     const isBaseComponent = filename.includes('mui-base');
@@ -135,7 +146,7 @@ export default function ComponentsApiContent(props) {
 `);
 
     return (
-      <React.Fragment key={`component-api-${key}`}>
+      <React.Fragment key={`component-api-${componentKey}`}>
         <MarkdownElement>
           <Heading hash={componentNameKebabCase} text={`${componentName} API`} />
           <Heading text="import" hash={`${componentNameKebabCase}-import`} level="h3" />
@@ -210,7 +221,7 @@ export default function ComponentsApiContent(props) {
           )}
           <SlotsSection
             componentSlots={componentSlots}
-            slotDescriptions={slotDescriptions}
+            slotDescriptions={slotDescriptions!}
             componentName={componentName}
             titleHash={`${componentNameKebabCase}-slots`}
             level="h3"
@@ -240,19 +251,4 @@ export default function ComponentsApiContent(props) {
       </React.Fragment>
     );
   });
-}
-
-ComponentsApiContent.propTypes = {
-  defaultLayout: PropTypes.oneOf(['collapsed', 'expanded', 'table']),
-  descriptions: PropTypes.object.isRequired,
-  layoutStorageKey: PropTypes.shape({
-    classes: PropTypes.string,
-    props: PropTypes.string,
-    slots: PropTypes.string,
-  }),
-  pageContents: PropTypes.object.isRequired,
-};
-
-if (process.env.NODE_ENV !== 'production') {
-  ComponentsApiContent.propTypes = exactProp(ComponentsApiContent.propTypes);
 }
