@@ -65,7 +65,11 @@ type PropertiesSectionProps = (
   | {
       properties: {
         // isProPlan and isPremiumPlan are added for the MUI X interface documentation.
-        [name: string]: PropsTableItem & { isProPlan?: true; isPremiumPlan?: true };
+        [name: string]: PropsTableItem & {
+          plan?: 'pro' | 'premium' | 'community';
+          isProPlan?: true;
+          isPremiumPlan?: true;
+        };
       };
       propertiesDescriptions: PropsTranslations['propDescriptions'];
       componentName: string;

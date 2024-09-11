@@ -111,13 +111,33 @@ function PropDescription(props: { description: string }) {
   );
 }
 
+function defaultRenderPlan(plan?: 'pro' | 'premium' | 'community') {
+  switch (plan) {
+    case 'pro':
+      return (
+        <a href="/x/introduction/licensing/#pro-plan" aria-label="Pro plan">
+          <span className="plan-pro" />
+        </a>
+      );
+    case 'premium':
+      return (
+        <a href="/x/introduction/licensing/#premium-plan" aria-label="Premium plan">
+          <span className="plan-premium" />
+        </a>
+      );
+    default:
+      return null;
+  }
+}
+
 interface PropertiesListProps {
   properties: PropertyDefinition[];
   displayOption: 'collapsed' | 'expanded';
+  renderPlan?: (plan?: 'pro' | 'premium' | 'community') => React.ReactNode;
 }
 
 export default function PropertiesList(props: PropertiesListProps) {
-  const { properties, displayOption } = props;
+  const { properties, displayOption, renderPlan = defaultRenderPlan } = props;
   const t = useTranslate();
   return (
     <ApiItemContainer>
@@ -130,8 +150,7 @@ export default function PropertiesList(props: PropertiesListProps) {
           isOptional,
           isRequired,
           isDeprecated,
-          isProPlan,
-          isPremiumPlan,
+          plan,
           deprecationInfo,
           typeName,
           propDefault,
@@ -156,16 +175,7 @@ export default function PropertiesList(props: PropertiesListProps) {
             title={
               <React.Fragment>
                 {propName}
-                {isProPlan && (
-                  <a href="/x/introduction/licensing/#pro-plan" aria-label="Pro plan">
-                    <span className="plan-pro" />
-                  </a>
-                )}
-                {isPremiumPlan && (
-                  <a href="/x/introduction/licensing/#premium-plan" aria-label="Premium plan">
-                    <span className="plan-premium" />
-                  </a>
-                )}
+                {renderPlan?.(plan)}
               </React.Fragment>
             }
             note={note}

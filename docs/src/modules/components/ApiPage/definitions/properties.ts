@@ -27,6 +27,10 @@ export interface PropertyDefinition {
   /**
    * Used by MUI X interface documentation
    */
+  plan?: 'pro' | 'premium' | 'community';
+  /**
+   * Used by MUI X interface documentation
+   */
   isProPlan?: boolean;
   /**
    * Used by MUI X interface documentation
@@ -69,7 +73,7 @@ export const getPropertiesToC = ({
 interface GetPropsApiDefinitionsParams {
   componentName: string;
   properties: {
-    [name: string]: PropsTableItem & {
+    [name: string]: PropsTableItem & { 
       /**
        * Only to be compatible the time of the migration for X
        */
@@ -138,6 +142,7 @@ export function getPropsApiDefinitions(params: GetPropsApiDefinitionsParams): Pr
       signature,
       signatureArgs,
       signatureReturnDescription,
+      plan: propData.isProPlan,
       isProPlan: propData.isProPlan,
       isPremiumPlan: propData.isPremiumPlan,
     };

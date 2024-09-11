@@ -148,6 +148,7 @@ export default function PropertiesTable(props: PropertiesTableProps) {
               requiresRef,
               isOptional,
               isRequired,
+              plan,
               isProPlan,
               isPremiumPlan,
               isDeprecated,
