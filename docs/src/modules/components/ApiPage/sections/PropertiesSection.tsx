@@ -127,6 +127,9 @@ export default function PropertiesSection(props: PropertiesSectionProps) {
         showOptionalAbbr,
       });
 
+  if (formattedProperties.length === 0) {
+    return null;
+  }
   return (
     <React.Fragment>
       <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 1 }}>
